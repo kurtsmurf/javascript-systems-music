@@ -1,0 +1,12 @@
+.ragheb {
+  width: 100%
+}
+
+.two-raghebs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 15%;
+}
+
+@keyframes spin { 100% { transform:rotate(-360deg); } }
