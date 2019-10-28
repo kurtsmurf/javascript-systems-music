@@ -106,7 +106,9 @@ const startLoop = (instrument, note, destination, loopLengthSeconds = randomLeng
   setInterval(() => playSample(instrument, note, destination), loopLengthSeconds * 1000)
 }
 
-fetchSample('Samples/Impulses/AirportTerminal.wav').then(convolverBuffer => {
+const start = (convolverBuffer) => {
+  console.log('blerp')
+  document.querySelector('.message').remove()
   let convolver = audioContext.createConvolver()
   convolver.buffer = convolverBuffer
   convolver.connect(audioContext.destination)
@@ -119,5 +121,9 @@ fetchSample('Samples/Impulses/AirportTerminal.wav').then(convolverBuffer => {
   startLoop('Cello', 'Eb3', convolver)
   startLoop('Cello', 'F3', convolver)
   startLoop('Cello', 'Ab3', convolver)
-})
+}
 
+fetchSample('Samples/Impulses/AirportTerminal.wav').then(convolverBuffer => {
+  document.querySelector('.message').innerText = 'Touch anywhere to begin. Loop may take up to 30 seconds to start after touch.'
+  document.querySelector('body').onclick = () => start(convolverBuffer)
+}).catch(e => console.log(e))
