@@ -53,6 +53,8 @@ const fetchSample = (path) => {
     .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
 }
 
+const cachedBuffers = {}
+
 const getSample = (instrument, noteAndOctave) => {
   let [, requestedNote, requestedOctave] = /^(\w[b#]?)(\d)$/.exec(noteAndOctave)
   requestedOctave = parseInt(requestedOctave, 10)
@@ -61,10 +63,21 @@ const getSample = (instrument, noteAndOctave) => {
   let sample = getNearestSample(sampleBank, requestedNote, requestedOctave)
   let distance = 
     getNoteDistance(requestedNote, requestedOctave, sample.note, sample.octave)
-  return fetchSample(sample.file).then(audioBuffer => ({
-    audioBuffer: audioBuffer,
-    distance: distance
-  }))
+
+  if (cachedBuffers[sample.file]) {
+    return Promise.resolve({
+      audioBuffer: cachedBuffers[sample.file],
+      distance: distance
+    })
+  }
+
+  return fetchSample(sample.file).then(audioBuffer => {
+    cachedBuffers[sample.file] = audioBuffer
+    return {
+      audioBuffer: audioBuffer,
+      distance: distance
+    }
+  })
 }
 
 const playSample = (instrument, note) => {
