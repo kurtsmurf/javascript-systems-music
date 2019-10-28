@@ -80,7 +80,7 @@ const getSample = (instrument, noteAndOctave) => {
   })
 }
 
-const playSample = (instrument, note) => {
+const playSample = (instrument, note, destination) => {
   getSample(instrument, note).then(({audioBuffer, distance}) => {
     let playbackRate = Math.pow(2, distance / 12)
     let bufferSource = audioContext.createBufferSource()
@@ -91,7 +91,8 @@ const playSample = (instrument, note) => {
     stereoPannerNode.pan.value = Math.random() * 2 - 1
 
     bufferSource.connect(stereoPannerNode)
-    stereoPannerNode.connect(audioContext.destination)
+    stereoPannerNode.connect(destination)
+    destination.connect(audioContext.destination)
     bufferSource.start()
   })
 }
@@ -100,16 +101,23 @@ const randomLength = () => {
   return Math.random() * 30 + 5
 }
 
-const startLoop = (instrument, note, loopLengthSeconds = randomLength()) => {
+const startLoop = (instrument, note, destination, loopLengthSeconds = randomLength()) => {
   // playSample(instrument, note)
-  setInterval(() => playSample(instrument, note), loopLengthSeconds * 1000)
+  setInterval(() => playSample(instrument, note, destination), loopLengthSeconds * 1000)
 }
 
-startLoop('Cello', 'F2')
-startLoop('Cello', 'Ab2')
-startLoop('Cello', 'C3')
-startLoop('Cello', 'Db3')
-startLoop('Cello', 'Eb3')
-startLoop('Cello', 'F3')
-startLoop('Cello', 'Ab3')
+fetchSample('Samples/Impulses/AirportTerminal.wav').then(convolverBuffer => {
+  let convolver = audioContext.createConvolver()
+  convolver.buffer = convolverBuffer
+  convolver.connect(audioContext.destination)
+
+  startLoop('Cello', 'F2', convolver)
+  startLoop('Cello', 'F2', convolver)
+  startLoop('Cello', 'Ab2', convolver)
+  startLoop('Cello', 'C3', convolver)
+  startLoop('Cello', 'Db3', convolver)
+  startLoop('Cello', 'Eb3', convolver)
+  startLoop('Cello', 'F3', convolver)
+  startLoop('Cello', 'Ab3', convolver)
+})
 
