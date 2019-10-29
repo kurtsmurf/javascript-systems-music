@@ -34,16 +34,27 @@ const makeSynth = () => {
 const leftSynth = makeSynth()
 const rightSynth = makeSynth()
 
+leftSynth.vibratoRate.value = 20
+
 const leftPanner = new Tone.Panner(-0.5)
 const rightPanner = new Tone.Panner(0.5)
 
 const echo = new Tone.FeedbackDelay('4n', 0.4)
+const delay = Tone.context.createDelay(6.0)
+const delayFade = Tone.context.createGain()
+
+delay.delayTime.value = 6.0
+delayFade.gain.value = 0.75
 
 leftSynth.connect(leftPanner)
 rightSynth.connect(rightPanner)
 leftPanner.connect(echo)
 rightPanner.connect(echo)
 echo.toMaster()
+echo.connect(delay)
+delay.connect(Tone.context.destination)
+delay.connect(delayFade)
+delayFade.connect(delay)
 
 new Tone.Loop(time => {
   leftSynth.triggerAttackRelease('C5', '1:2', time)
@@ -64,4 +75,10 @@ new Tone.Loop(() => {
     rightSynth.triggerAttackRelease('G4', '0:2', '+23:2');
   }, '37m').start();
 
-Tone.Transport.start()
+
+const startButton = $('#start-button')
+startButton.onclick = () => {
+  console.log('Starting Tone Transport')
+  Tone.Transport.start()
+  startButton.disabled = true
+}
