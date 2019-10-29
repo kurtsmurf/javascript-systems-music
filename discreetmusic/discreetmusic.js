@@ -76,6 +76,8 @@ delay.connect(delayFade)
 delayFade.connect(delay)
 
 const startItUp = () => {
+  Tone.context.resume()
+
   new Tone.Loop(time => {
     leftSynth.triggerAttackRelease('C5', '1:2', time)
     leftSynth.setNote('D5', '+0:2')
